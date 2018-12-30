@@ -1,0 +1,32 @@
+{
+  "name": "ras-psi",
+  "version": "0.0.1",
+  "description": "psi function for raspberry distribution",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "jest",
+    "lint": "eslint src/*.js",
+    "build": "babel src -d lib"
+  },
+  "keywords": [
+    "raspberry",
+    "psi",
+    "function",
+    "distribution",
+    "serverless"
+  ],
+  "author": "João Moura",
+  "license": "MIT",
+  "devDependencies": {
+    "@babel/cli": "^7.2.3",
+    "@babel/core": "^7.2.2",
+    "@babel/preset-env": "^7.2.3",
+    "eslint": "^5.11.1",
+    "eslint-config-standard": "^12.0.0",
+    "eslint-plugin-import": "^2.14.0",
+    "eslint-plugin-node": "^8.0.0",
+    "eslint-plugin-promise": "^4.0.1",
+    "eslint-plugin-standard": "^4.0.0",
+    "jest": "^23.6.0"
+  }
+}
