@@ -2,14 +2,13 @@
  * Module dependencies.
  */
 
-import dotenv from 'dotenv'
+import 'envLoader'
 import App from 'app'
 import Debug from 'debug'
 import http from 'http'
 import 'tcp'
 
 const debug = Debug('raspsi:server')
-dotenv.config()
 
 let params = {
   SERVER_PORT: process.env.SERVER_PORT,

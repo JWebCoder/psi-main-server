@@ -1,17 +1,36 @@
+import 'envLoader'
 import { messageParser, listFunctions } from './utils'
 import net from 'net'
 const loadedFunctions = {}
+let functionNames = []
+const TTL = 60 * 1000
+
+const INTERVAL = setInterval(
+  function () {
+    const currentTime = new Date().getTime()
+    functionNames = functionNames.filter(
+      function (functionName) {
+        const valid = currentTime - loadedFunctions[functionName].timespan >= TTL
+        if (!valid) {
+          delete loadedFunctions[functionName]
+        }
+        return valid
+      }
+    )
+  },
+  TTL
+)
 
 function run (loadedFunction, callbackID) {
   client.write(JSON.stringify({
-    data: loadedFunction(),
+    data: loadedFunction.function(),
     callbackID,
     type: 'functionAnswer',
   }))
 }
 
 let client = net.createConnection({
-  port: 1337,
+  port: process.env.TCP_SERVER_PORT || 1337,
   host: 'localhost',
 }, function () {
   console.log('PSI: PSI Client connected')
@@ -31,13 +50,19 @@ client.on('data', function (data) {
   console.log('PSI Received: ' + data.toString())
   switch (message.type) {
     case 'runFunction':
-      if (loadedFunctions[message.function.name]) {
-        run(loadedFunctions[message.function.name], message.callbackID || null)
+      const functionName = message.function.name
+      if (loadedFunctions[functionName]) {
+        run(loadedFunctions[functionName], message.callbackID || null)
       } else {
-        import('/Users/joaomoura/Repos/personal/ras-psi/functions/' + message.function.name + '/index.js').then(
+        import('/Users/joaomoura/Repos/personal/ras-psi/functions/' + functionName + '/index.js').then(
           module => {
-            loadedFunctions[message.function.name] = module.default
-            run(loadedFunctions[message.function.name], message.callbackID || null)
+            loadedFunctions[functionName] = {
+              function: module.default,
+              timespan: new Date().getTime(),
+            }
+            functionNames = Object.keys(loadedFunctions)
+            console.log('loaded', functionName)
+            run(loadedFunctions[functionName], message.callbackID || null)
           }
         ).catch(
           err => console.log(err)
@@ -48,5 +73,6 @@ client.on('data', function (data) {
 })
 
 client.on('close', function () {
+  clearInterval(INTERVAL)
   console.log('Client: Connection closed')
 })
