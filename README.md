@@ -1,4 +1,7 @@
-# ras-psi (Raspberry - PSI Functions)
+# PSI main server
+
+* [Main server repo](github.com/JWebCoder/psi-main-server)
+* [PSI functions server repo](github.com/JWebCoder/psi-functions-server)
 
 This is a personal project to create a distributed computing structure using raspberry pies connected through TCP
 
@@ -16,6 +19,18 @@ The idea is to create a fully scalable system using micro components and make it
 Raspberry PI 1 - Express JS application to handle the http requests and TCP server for the other PI's
 
 Raspberry PI 2,3,... - TPC clients able to load javascript files dynamically passing them the body and query objects from the Express JS application
+
+## How to run
+
+```bash
+npm run dev
+```
+
+## How to use
+
+Go to the browser and open `localhost:1337/api/[functionName]`
+
+* functionName: one of the psi functions available
 
 ## TODO
 

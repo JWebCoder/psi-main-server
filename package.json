@@ -1,15 +1,17 @@
 {
-  "name": "ras-psi",
+  "name": "psi-main-server",
   "version": "0.0.1",
-  "description": "psi function for raspberry distribution",
-  "main": "dist/index.js",
+  "description": "psi functions main server",
+  "main": "bin/www",
   "scripts": {
     "test": "jest",
     "lint": "eslint src/*.js",
-    "build": "npm run clean && babel src -d lib",
-    "dev-server": "DEBUG=raspsi:* babel-node ./bin_src/www",
-    "dev-psi": "babel-node src/psi.js",
-    "clean": "rm -rf lib && mkdir lib"
+    "build": "npm run clean && babel src -d lib && babel bin_src/www -o bin/www",
+    "dev": "DEBUG=raspsi:* babel-node ./bin_src/www",
+    "clean": "rm -rf lib bin && mkdir lib && mkdir bin"
+  },
+  "bin" : {
+    "www" : "./bin/www"
   },
   "keywords": [
     "raspberry",
