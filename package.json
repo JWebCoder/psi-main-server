@@ -10,8 +10,8 @@
     "dev": "DEBUG=raspsi:* babel-node ./bin_src/www",
     "clean": "rm -rf lib bin && mkdir lib && mkdir bin"
   },
-  "bin" : {
-    "www" : "./bin/www"
+  "bin": {
+    "www": "./bin/www"
   },
   "keywords": [
     "raspberry",

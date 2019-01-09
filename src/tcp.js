@@ -122,6 +122,8 @@ export function getDataFromFunction (functionName, body, query, callback) {
         type: 'runFunction',
         function: {
           name: functionName,
+        },
+        data: {
           body,
           query,
         },
