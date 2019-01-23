@@ -1,18 +1,46 @@
+// @flow
 /*
 In the node.js intro tutorial (http://nodejs.org/), they show a basic tcp
 server, but for some reason omit a client connecting to it.  I added an
 example at the bottom.
 Save the following server in example.js:
 */
+
 import Debug from 'debug'
-import 'tcp'
-import { messageParser } from 'utils'
+import { messageParser } from '@root/utils'
 import net from 'net'
 import shortid from 'shortid'
+import HttpError from './exceptions'
 
-const sockets = {}
-const functions = {}
-const callbacks = {}
+type functionItem = {
+  ID: number,
+  counter: number,
+}
+
+export interface socketMessage {
+  type: string;
+  items?: Array<string>
+  function?: {
+    name: string
+  },
+  callbackID?: string,
+  data?: {}
+}
+
+const functions: {
+  [key: string]: Array<functionItem>
+} = {}
+
+const sockets: {
+  [key: string]: {
+    socket: net.Socket,
+    functionList: Array<string>
+  }
+} = {}
+
+const callbacks: {
+  [key: string]: (data?: {}) => void
+} = {}
 const debug = Debug('raspsi:tcp-server')
 
 debug('Creating tcp server')
@@ -26,35 +54,44 @@ var server = net.createServer(function (socket) {
   }
 
   socket.on('data', function (data) {
-    const message = messageParser(data)
+    const message: socketMessage | null = messageParser(data)
     if (!message) {
       return
     }
     console.log('SERVER MESSAGE:', message)
     switch (message.type) {
       case 'functionList':
-        sockets[ID].functionList = message.items
-        message.items.forEach(
-          functionName => {
-            functions[functionName] = [
-              ...(functions[functionName] || []),
-              {
-                ID,
-                counter: 0,
-              },
-            ]
-          }
-        )
-        console.log(functions)
+        sockets[ID].functionList = []
+        if (message.items) {
+          sockets[ID].functionList = message.items
+          message.items.forEach(
+            (functionName: string) => {
+              functions[functionName] = [
+                ...(functions[functionName] || []),
+                {
+                  ID,
+                  counter: 0,
+                },
+              ]
+            }
+          )
+        }
+        
         break
       case 'runFunction':
-        if (functions[message.function.name] && sockets[functions[message.function.name]]) {
-          sockets[functions[message.function.name]].socket.write(JSON.stringify({
-            type: 'runFunction',
-            function: {
-              name: message.function.name,
-            },
-          }))
+        if (message.function && functions[message.function.name]) {
+          let functionName = message.function.name
+          functions[functionName].forEach(
+            functionItem => {
+              sockets[functionItem.ID].socket.write(JSON.stringify({
+                type: 'runFunction',
+                function: {
+                  name: functionName,
+                },
+              }))
+            }
+          )
+          
         }
         break
       case 'functionAnswer':
@@ -93,9 +130,9 @@ function onListening () {
   debug('Listening on ' + bind)
 }
 
-server.listen(process.env.TCP_SERVER_PORT || 1337, 'localhost')
+server.listen(process.env.TCP_SERVER_PORT || 1337)
 
-export function getDataFromFunction (functionName, body, query, callback) {
+export function getDataFromFunction (functionName: string, body: any, query: any, callback: (data?: {}) => void) {
   if (functions[functionName]) {
     let functionToCall = functions[functionName].find(
       functionItem => {
@@ -130,8 +167,7 @@ export function getDataFromFunction (functionName, body, query, callback) {
       console.log(functions)
     }
   } else {
-    const error = new Error('Not Found')
-    error.status = 404
+    const error = new HttpError(404, 'Not Found')
     throw error
   }
 }

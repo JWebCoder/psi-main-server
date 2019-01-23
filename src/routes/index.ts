@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import ApiRouter from 'routes/api'
+import ApiRouter from '@root/routes/api'
 import path from 'path'
 import Debug from 'debug'
 

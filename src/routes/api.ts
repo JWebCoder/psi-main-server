@@ -1,7 +1,8 @@
 import { Router } from 'express'
-import { getDataFromFunction } from 'tcp'
+import { getDataFromFunction } from '@root/tcp'
 export default class SalaryRouter {
-  constructor (router) {
+  router: Router
+  constructor (router?: Router) {
     this.router = router || Router()
     this.router.all('/:functionName',
       (req, res, next) => {
@@ -19,7 +20,7 @@ export default class SalaryRouter {
     )
   }
 
-  getRoutes () {
+  getRoutes (): Router {
     return this.router
   }
 }
