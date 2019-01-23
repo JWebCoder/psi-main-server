@@ -159,6 +159,8 @@ export function getDataFromFunction (functionName: string, body: any, query: any
         type: 'runFunction',
         function: {
           name: functionName,
+        },
+        data: {
           body,
           query,
         },
